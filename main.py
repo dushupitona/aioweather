@@ -9,9 +9,19 @@ import asyncio
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.dispatcher import FSMContext
-from aiogram.types import ReplyKeyboardRemove, \
-    ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+
+def timeset(x):
+    x = int(x)
+    if x>= 5 and x<=10:
+        return 'Доброе утро'
+    elif x>= 10 and x<= 18:
+        return 'Добрый день'
+    elif x>= 18 and x<= 23:
+        return 'Добрый вечер'
+    else:
+        return 'Доброй ночи'
+
 
 
 def remonth(x):
@@ -54,6 +64,8 @@ dp = Dispatcher(bot, storage=storage)
 
 class UserState(StatesGroup):
     name = State()
+
+
 url = 'https://yandex.com.am/weather/'
 response = requests.get(url)
 src = response.text
@@ -71,17 +83,18 @@ async def strt(message: types.Message):
             a = pytz.timezone('Asia/Barnaul')
             now = datetime.now(a)
             timme = now.strftime('%H:%M:%S')
+            hour = now.hour
             datte = str(now.date())
             year = datte[:4]
             month = datte[5:7]
             day = datte[8:]
-            #
+
             if timme == set_time:
                 wth = soup.find(class_='temp fact__temp fact__temp_size_s')
                 h2d = soup.find(class_='link__condition day-anchor i-bem')
                 rain = soup.find(class_='maps-widget-fact__title')
                 await message.answer(
-                                 f'Доброе утро, капитан, сегодня {day} {remonth(month)}, за бортом {(h2d.text).lower()}, по градусной\
+                                 f'{timeset(hour)}, капитан, сегодня {day} {remonth(month)}, за бортом {(h2d.text).lower()}, по градусной\
  шкале {wth.text}. {rain.text}. ', reply_markup=types.ReplyKeyboardRemove()
             )
             await asyncio.sleep(1)
@@ -91,8 +104,11 @@ async def strt(message: types.Message):
 
 @dp.message_handler(commands="time")
 async def set_time(message:types.Message):
-    await message.answer('Введи время, когда хочешь получить погоду.')
+    await message.answer('Введи время, когда хочешь получить погоду.\n'
+                         'Формат: 07:11:47')
     await UserState.name.set()
+
+
 
 @dp.message_handler(state=UserState.name)
 async def get_username(message: types.Message, state: FSMContext):
@@ -113,5 +129,8 @@ async def show_wther(message: types.Message):
         await message.answer( f'Температура {wth.text}, на улице {(h2d.text).lower()}. {rain.text}.')
     except:
         await message.answer("Что-то пошло не так")
+
+
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
