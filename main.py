@@ -86,9 +86,9 @@ async def strt(message: types.Message):
             datte = str(now.date())
             year = datte[:4]
             month = datte[5:7]
-            day = datte[8:]
-            if len(day) == 2:
-                day = day[1]
+            day = str(datte[8:])
+            if day[0] == '0':
+                day =day[1]
 
             if timme == set_time:
                 wth = soup.find(class_='temp fact__temp fact__temp_size_s')
