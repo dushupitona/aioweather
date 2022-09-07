@@ -23,7 +23,6 @@ def timeset(x):
         return 'Доброй ночи'
 
 
-
 def remonth(x):
     x = int(x)
     if x == 1:
@@ -88,6 +87,8 @@ async def strt(message: types.Message):
             year = datte[:4]
             month = datte[5:7]
             day = datte[8:]
+            if len(day) == 2:
+                day = day[1]
 
             if timme == set_time:
                 wth = soup.find(class_='temp fact__temp fact__temp_size_s')
